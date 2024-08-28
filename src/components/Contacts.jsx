@@ -1,12 +1,15 @@
 import { useState } from "react"
-
 import ContactsList from "./ContactsList"
+import inputs from "../constants/inputs"
+import { v4 } from "uuid"
+import styles from './Contacts.module.css'
 
 const Contacts = () => {
     const [contacts, setContacts] = useState([])
+
     const [alert, setAlert] = useState("")
     const [contact, setContact] = useState({
-        name: '', lastName: '', email: '', phone: ''
+        id: '', name: '', lastName: '', email: '', phone: ''
     })
 
     const changeHandler = (event) => {
@@ -22,26 +25,34 @@ const Contacts = () => {
             return
         }
         setAlert("")
-
-        setContacts(contacts => ([...contacts, contact]))
+        const newContact = { ...contact, id: v4() }
+        setContacts(contacts => ([...contacts, newContact]))
         setContact({
             name: '', lastName: '', email: '', phone: ''
         })
     }
 
+    const deleteHandler = id => {
+        const newContacts = contacts.filter((contact) => contact.id !== id)
+        setContacts(newContacts)
+    }
+
     return (
-        <div>
-            <div>
-                <input type="text" name="name" placeholder="Name" value={contact.name} onChange={changeHandler} />
+        <div className={styles.container}>
+            <div className={styles.form}>
+                {
+                    inputs.map((input, index) => (<input key={index} type={input.type} name={input.name} placeholder={input.placeholder} value={contact[input.name]} onChange={changeHandler} />))
+                }
+                {/* <input type="text" name="name" placeholder="Name" value={contact.name} onChange={changeHandler} />
                 <input type="text" name="lastName" placeholder="Last Name" value={contact.lastName} onChange={changeHandler} />
                 <input type="email" name="email" placeholder="Email" value={contact.email} onChange={changeHandler} />
-                <input type="number" name="phone" placeholder="Phone" value={contact.phone} onChange={changeHandler} />
+                <input type="number" name="phone" placeholder="Phone" value={contact.phone} onChange={changeHandler} /> */}
                 <button onClick={addHandler}>Add Contact</button>
             </div>
-            <div>
+            <div className={styles.alert}>
                 {alert && <p>{alert}</p>}
             </div>
-            <ContactsList contacts={contacts} />
+            <ContactsList contacts={contacts} deleteHandler={deleteHandler} />
         </div>
     )
 }
